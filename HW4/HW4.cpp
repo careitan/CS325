@@ -29,12 +29,30 @@ struct Activity
 	int Finish;
 };
 
-void FindActivities (vector<Activity> A, vector<Activity> S);
-void RenderOutput (vector<Activity> S, int SetNumber);
+// https://stackoverflow.com/questions/1380463/sorting-a-vector-of-custom-objects
+struct less_than_finish
+{
+	inline bool operator() (const Activity& str1, const Activity& str2) const
+    {
+        return (str1.Finish > str2.Finish);
+    }
+};
+
+struct less_than_start
+{
+	inline bool operator() (const Activity& str1, const Activity& str2) const
+    {
+        return (str1.Start > str2.Start);
+    }
+};
+
+void FindActivities (vector<Activity>& A, vector<Activity>& S);
+void RenderOutput (vector<Activity>& S, int SetNumber);
 
 int main()
 {
 	int validation;   	// used to hold the value for validation checking of input list.
+	int j;				// Counter for which element in the dataset it is processing.
 	int k;				// Counter to use for the output display indicating which Set we are displaying.
 	string Line;
 	ifstream inFile;
@@ -45,7 +63,7 @@ int main()
 
 	// Process the input file.
 	validation = 0;
-	k = 1;
+	k = 0;
 	while (getline(inFile, Line))
 	{
 		Line.shrink_to_fit();
@@ -58,13 +76,50 @@ int main()
 			// line parsed has spaces so it must be values.
 			// New DataSet Element
 
+			j = 0;
+			int a, b, c;
+			string token;
+
+			while(getline(iss, token, ' '))
+			{
+				int val;
+				
+				val = stoi(token);
+				
+				switch(j)
+				{
+					case 1:
+						b = val;
+						break;
+					case 2:
+						c = val;
+						break;
+					default:
+						a = val;
+						break;
+				}
+				j++;
+			}
+			// Populate TempStruct
+			Activity TempStruct;
+			TempStruct.Number = a;
+			TempStruct.Start = b;
+			TempStruct.Finish = c;
+
+			// Add TempStruct to the Input Set
+			AllActivities.push_back(TempStruct);
 		}
 		else if (TestResult < 0)
 		{
 			// Assume a single value for the Amount of Activities
 			iss >> validation;
+			k++;
 			AllActivities.clear();
+			AllActivities.resize(0);
+			AllActivities.shrink_to_fit();
 			SelectedActivites.clear();
+			SelectedActivites.resize(0);
+			SelectedActivites.shrink_to_fit();
 		}
 		else
 		{
@@ -75,6 +130,7 @@ int main()
 		if ( (int)AllActivities.size() == validation )
 		{
 			//Process the dataset to find the result set.
+			AllActivities.shrink_to_fit();
 			FindActivities (AllActivities, SelectedActivites);
 
 			//Print out the result set to the terminal.
@@ -94,14 +150,39 @@ int main()
 //	FUNCTION BUILDS
 //////////////////////////
 
-void FindActivities (vector<Activity> A, vector<Activity> S)
+void FindActivities (vector<Activity>& A, vector<Activity>& S)
 {
+	// plaseholder for the curent value of Start.
+	int StartingTime = INT_MAX;
+
+	S.clear();
+
+	stable_sort(A.begin(), A.end(), less_than_finish());
+	stable_sort(A.begin(), A.end(), less_than_start());
+
+	for (int i = 0; i < (int)A.size(); ++i)
+	{
+		if (A[i].Finish <= StartingTime)
+		{
+			S.insert(S.begin(), A[i]);
+			StartingTime = A[i].Start;
+		}
+	}
 
 	return;
 }
 
-void RenderOutput (vector<Activity> S, int SetNumber)
+void RenderOutput (vector<Activity>& S, int SetNumber)
 {
+	printf("\nSet %i\n", SetNumber);
+	printf("Number of activities selected = %i\n",(int)S.size());
+	printf("Activities: ");
+
+	for (int i = 0; i < (int)S.size(); ++i)
+	{
+		printf("%i ", S[i].Number);
+	}
+	printf("\n");
 
 	return;
 }
