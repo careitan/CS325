@@ -4,7 +4,13 @@
 // 
 // HW4.cpp - Greedy Algorithms processing of activities counting.
 // 
-//
+// Purpose: Read in a set of activites identified in a text file.
+// 		format of the input text file is using integers and assumed to be the following:
+//		Total_items_in_Set
+//		Number0 Start0 Finish0
+//		...
+//		NumberN-1 StartN-1 FinishN-1
+//		
 
 #include <stdio.h>
 #include <algorithm>
@@ -38,6 +44,7 @@ struct less_than_finish
     }
 };
 
+// variation on the above struct to sort the Start times.
 struct less_than_start
 {
 	inline bool operator() (const Activity& str1, const Activity& str2) const
@@ -74,7 +81,7 @@ int main()
 		if (TestResult > 0)
 		{
 			// line parsed has spaces so it must be values.
-			// New DataSet Element
+			// New Activity Set Element
 
 			j = 0;
 			int a, b, c;
@@ -100,6 +107,7 @@ int main()
 				}
 				j++;
 			}
+
 			// Populate TempStruct
 			Activity TempStruct;
 			TempStruct.Number = a;
@@ -113,6 +121,8 @@ int main()
 		{
 			// Assume a single value for the Amount of Activities
 			iss >> validation;
+
+			// Initialize the variables and objects for the next set of activities.
 			k++;
 			AllActivities.clear();
 			AllActivities.resize(0);
@@ -141,8 +151,6 @@ int main()
 	// Close out the Resource.
 	inFile.close();
 
-	// Start the process of generating the outputs and calculations.
-
 	return 0;
 }
 
@@ -157,9 +165,11 @@ void FindActivities (vector<Activity>& A, vector<Activity>& S)
 
 	S.clear();
 
+	// Sort Activities Set by Descending Finish time, then sort by descending Start time.
 	stable_sort(A.begin(), A.end(), less_than_finish());
 	stable_sort(A.begin(), A.end(), less_than_start());
 
+	// Loop through the Activity Set to compare the Finish Time less than the current Starting time.
 	for (int i = 0; i < (int)A.size(); ++i)
 	{
 		if (A[i].Finish <= StartingTime)
@@ -172,6 +182,7 @@ void FindActivities (vector<Activity>& A, vector<Activity>& S)
 	return;
 }
 
+// Helper Function to encapsulate the output rendering to the screen.
 void RenderOutput (vector<Activity>& S, int SetNumber)
 {
 	printf("\nSet %i\n", SetNumber);
