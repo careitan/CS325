@@ -6,13 +6,12 @@
 // 
 // useage: HW5 file_name
 // 
-// Purpose: Read in a set of activites identified in a text file.
-// 		format of the input text file is using integers and assumed to be the following:
-//		Total_items_in_Set
-//		Number0 Start0 Finish0
-//		...
-//		NumberN-1 StartN-1 FinishN-1
-//		
+// Purpose: Read in a set of names and relationships identified in a text file.
+// 		Then perform a Breadth First Search or Depth First Search to determine if there are an equal
+//		number of rivalries between "babyfaces" and "heels".
+//
+//		If there is a determined relationship set, then render it out on the screen.
+//
 
 #include <stdio.h>
 #include <algorithm>
@@ -30,6 +29,28 @@
 
 using namespace std;
 
+const int BABYFACE = 0;
+const int HEEL = 1;
+
+const int FALSE = 0;
+const int TRUE = 1;
+
+struct Relationship
+{
+	string Babyface;
+	string Heel;
+};
+
+struct Wrestler
+{
+	string Name;
+	int Type; // INT_MIN = Undefinded; 0 = Babyface; 1 = Heel
+};
+
+
+void RenderOutput();
+int CompareWrestlerType(vector<Wrestler>& w, string name, int Type);
+
 int main(int argc, char* argv[])
 {
 	if (argc <=1)
@@ -43,3 +64,18 @@ int main(int argc, char* argv[])
 //////////////////////////
 //	FUNCTION BUILDS
 //////////////////////////
+void RenderOutput()
+{
+
+	return;
+}
+
+// Compare the 
+int CompareWrestlerType(vector<Wrestler>& w, string name, int Type)
+{
+	int Retval = TRUE;
+
+
+
+	return Retval;
+}
