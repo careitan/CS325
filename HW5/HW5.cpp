@@ -50,7 +50,9 @@ struct Wrestler
 
 
 void RenderOutput(vector<Wrestler>& W);
+void AssignWrestlerType(vector<Wrestler>& W, string name, int Type);
 int CompareWrestlerType(vector<Wrestler>& W, string name, int Type);
+int GetWrestlerType(vector<Wrestler>& W, string name);
 void MSTSet(vector<Wrestler>& W, vector<Relationship>& R);
 
 int main(int argc, char* argv[])
@@ -163,7 +165,68 @@ int main(int argc, char* argv[])
 //////////////////////////
 void RenderOutput(vector<Wrestler>& W)
 {
+	int StopSearch = 0;
+	int i = 0;
 
+	do
+	{
+		if (CompareWrestlerType(W, W[i++].Name, INT_MIN)==TRUE)
+		{
+			StopSearch = 1;
+		}
+	}while(i < (int)W.size() && StopSearch == 0);
+
+	if (StopSearch == 1)
+	{
+		// Not possible to match up all of the set of names to relationships.
+		printf("Impossible.\n");
+	}else
+	{
+		// Render an Output Set
+		printf("Yes possible\n");
+
+		// Print out the Babyface names first
+		printf("Babyfaces:");
+		for (i = 0; i < (int)W.size(); ++i)
+		{
+			if (CompareWrestlerType(W, W[i].Name, BABYFACE)==TRUE)
+			{
+				cout << " " << W[i].Name;
+			}
+		}
+
+		// Print out the Heels next.
+		printf("\nHeels:");
+		for (i = 0; i < (int)W.size(); ++i)
+		{
+			if (CompareWrestlerType(W, W[i].Name, HEEL)==TRUE)
+			{
+				cout << " " << W[i].Name;
+			}
+		}
+		printf("\n");
+	}
+
+	return;
+}
+
+// Quick function to be able to assign the wrestler type to a given name.
+void AssignWrestlerType(vector<Wrestler>& W, string name, int Type)
+{
+	int i;
+
+	//Step through to find the name of string.
+	for (i = 0; i < (int)W.size(); ++i)
+	{
+		if (W[i].Name == name)
+		{
+			// Found the name now going to set the value.
+			W[i].Type = Type;
+
+			//immediately exit the function.
+			return;
+		}
+	}
 
 	return;
 }
@@ -172,9 +235,39 @@ void RenderOutput(vector<Wrestler>& W)
 // Return TRUE if it matches.
 int CompareWrestlerType(vector<Wrestler>& W, string name, int Type)
 {
-	int Retval = TRUE;
+	int Retval = FALSE;
+	int i;
 
+	//Step through to find the name of string.
+	for (i = 0; i < (int)W.size(); ++i)
+	{
+		if (W[i].Name == name)
+		{
+			// Found the value and can check it against the test value.
+			Retval = (W[i].Type == Type)? TRUE : FALSE;
+			return Retval;
+		}
+	}
 
+	return Retval;
+}
+
+// Get the wrestler type and return that value as an integer.
+int GetWrestlerType(vector<Wrestler>& W, string name)
+{
+	int Retval = INT_MIN;
+	int i;
+
+	//Step through to find the value.
+	for (i = 0; i < (int)W.size(); ++i)
+	{
+		if (W[i].Name == name)
+		{
+			// Found the value and can check it against the test value.
+			Retval = W[i].Type;
+			return Retval;
+		}
+	}
 
 	return Retval;
 }
@@ -182,6 +275,46 @@ int CompareWrestlerType(vector<Wrestler>& W, string name, int Type)
 // Implement the Kruksal's alogorithm functionality to process the array
 void MSTSet(vector<Wrestler>& W, vector<Relationship>& R)
 {
+	int RetValB, RetValH;
+	int i;
+
+	// Step through the Relationships to assign wrestler types
+	for (i = 0; i < (int)R.size(); ++i)
+	{
+		switch (i)
+		{
+			case 0:
+				// Automatically assign the first relationship in the set.
+				AssignWrestlerType(W, R[i].Babyface, BABYFACE);
+				AssignWrestlerType(W, R[i].Heel, HEEL);
+
+				break;
+			default:
+				// Process the relationship based on rules.
+				RetValB = GetWrestlerType(W, R[i].Babyface);
+				RetValH = GetWrestlerType(W, R[i].Heel);
+
+				if (RetValB == INT_MIN &&
+					RetValH == HEEL)
+				{
+					// Can assign a Babyface to the name
+					AssignWrestlerType(W, R[i].Babyface, BABYFACE);
+				}else if (RetValB == BABYFACE &&
+					RetValH == INT_MIN)
+				{
+					// Can assign a Heel to the set.
+					AssignWrestlerType(W, R[i].Heel, HEEL);
+				}else if (RetValB == INT_MIN &&
+					RetValH == INT_MIN)
+				{
+					// Edge does not touch the set.
+					AssignWrestlerType(W, R[i].Babyface, BABYFACE);
+					AssignWrestlerType(W, R[i].Heel, HEEL);
+					
+				}
+				break;
+		}
+	}
 
 	return;
 }
